@@ -40,9 +40,11 @@ export default function App() {
 
   // Fetch / Re-score Road Network when Rainfall changes
   useEffect(() => {
+    let ignore = false;
     setLoading(true);
     fetchRiskMap({ rainfall })
       .then((data) => {
+        if (ignore) return;
         const features = data.features || [];
         setRoadFeatures(features);
         setStats(data.meta || null);
@@ -52,8 +54,10 @@ export default function App() {
           if (updated) setSelectedRoad(updated.properties);
         }
       })
-      .catch((err) => console.error('Error fetching risk map:', err))
-      .finally(() => setLoading(false));
+      .catch((err) => { if (!ignore) console.error('Error fetching risk map:', err); })
+      .finally(() => { if (!ignore) setLoading(false); });
+
+    return () => { ignore = true; };
   }, [rainfall]);
 
   const handleSelectRoad = (roadProperties) => {

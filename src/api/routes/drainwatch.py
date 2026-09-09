@@ -235,6 +235,7 @@ class PhoneStreamManager:
         self._frame_count = 0
         self._last_fps_calc = time.time()
         self._current_fps = 0.0
+        self._conf_threshold = 0.15
         
         self._current_detections: List[Dict[str, Any]] = []
         self._current_total_items = 0
@@ -343,6 +344,10 @@ class PhoneStreamManager:
     def set_telemetry(self, telem: Dict[str, Any]):
         with self._lock:
             self._latest_telemetry.update(telem)
+
+    def set_conf_threshold(self, conf: float):
+        with self._lock:
+            self._conf_threshold = conf
 
     def _stream_reader_worker(self):
         url = self._url
@@ -464,8 +469,10 @@ class PhoneStreamManager:
             detector = get_detector()
             if detector is not None:
                 try:
+                    with self._lock:
+                        current_conf = self._conf_threshold
                     t0 = time.perf_counter()
-                    res = detector.detect(raw_frame, imgsz=416)
+                    res = detector.detect(raw_frame, conf=current_conf, imgsz=416)
                     inf_ms = (time.perf_counter() - t0) * 1000
 
                     total_items = res.get("total_items", 0)
@@ -616,7 +623,9 @@ async def stop_stream():
 
 
 @router.get("/drainwatch/phone-telemetry", summary="Get latest telemetry from active phone stream")
-async def phone_telemetry():
+async def phone_telemetry(conf_threshold: Optional[float] = Query(None)):
+    if conf_threshold is not None:
+        _phone_stream_mgr.set_conf_threshold(conf_threshold)
     return _phone_stream_mgr.get_telemetry()
 
 
@@ -654,7 +663,6 @@ async def video_feed(stream_url: str = Query(...), camera_id: str = Query("CAM_V
         media_type="multipart/x-mixed-replace; boundary=frame"
     )
 
-
 # ── USB-C / External Camera Stream ─────────────────────────────────────────────
 _usbc_lock = threading.RLock()
 _usbc_state: Dict[str, Any] = {
@@ -665,6 +673,7 @@ _usbc_state: Dict[str, Any] = {
     "fps": 0.0,
     "frame_count": 0,
     "last_fps_calc": time.time(),
+    "conf_threshold": 0.15,
     "detections": [],
     "total_items": 0,
     "severity_label": "CLEAN LAND",
@@ -756,8 +765,10 @@ def _usbc_inference_worker():
         detector = get_detector()
         if detector is not None:
             try:
+                with _usbc_lock:
+                    current_conf = _usbc_state["conf_threshold"]
                 t0 = time.perf_counter()
-                res = detector.detect(raw_frame, imgsz=416)
+                res = detector.detect(raw_frame, conf=current_conf, imgsz=416)
                 inf_ms = (time.perf_counter() - t0) * 1000
                 total_items = res.get("total_items", 0)
                 class_counts = res.get("class_counts", {})
@@ -882,8 +893,10 @@ async def usbc_stop():
 
 
 @router.get("/drainwatch/usbc-telemetry", summary="Get live YOLO telemetry from USB-C camera")
-async def usbc_telemetry():
+async def usbc_telemetry(conf_threshold: Optional[float] = Query(None)):
     with _usbc_lock:
+        if conf_threshold is not None:
+            _usbc_state["conf_threshold"] = conf_threshold
         return dict(_usbc_state["telemetry"])
 
 

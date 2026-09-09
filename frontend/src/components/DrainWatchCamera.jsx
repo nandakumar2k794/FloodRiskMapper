@@ -318,7 +318,8 @@ export default function DrainWatchCamera({ station, onTelemetryUpdate }) {
     if (isIpStreaming) {
       const poll = async () => {
         try {
-          const telem = await fetchPhoneTelemetry();
+          const res = await fetch(`http://127.0.0.1:8000/api/v1/drainwatch/phone-telemetry?conf_threshold=${confThreshold}`);
+          const telem = await res.json();
           if (telem) {
             if (telem.fps !== undefined) setStreamFps(telem.fps);
             if (telem.error) {
@@ -345,7 +346,7 @@ export default function DrainWatchCamera({ station, onTelemetryUpdate }) {
     return () => {
       if (telemetryIntervalRef.current) clearInterval(telemetryIntervalRef.current);
     };
-  }, [isIpStreaming]);
+  }, [isIpStreaming, confThreshold]);
 
   // ───────────────────────────────────────────────────────────────────────────
   // Mode 3: USB-C External Camera Handlers
@@ -375,7 +376,8 @@ export default function DrainWatchCamera({ station, onTelemetryUpdate }) {
       usbcErrorCountRef.current = 0;
       const poll = async () => {
         try {
-          const telem = await fetchUsbcTelemetry();
+          const res = await fetch(`http://127.0.0.1:8000/api/v1/drainwatch/usbc-telemetry?conf_threshold=${confThreshold}`);
+          const telem = await res.json();
           usbcErrorCountRef.current = 0; // reset on success
           if (telem) {
             if (telem.fps !== undefined) setUsbcFps(telem.fps);
