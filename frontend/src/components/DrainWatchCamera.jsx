@@ -30,7 +30,7 @@ import {
 } from '../api/client';
 
 // USB-C API helpers (call backend endpoints directly)
-const API_BASE = '/api/v1';
+const API_BASE = 'http://127.0.0.1:8000/api/v1';
 const usbcFeedUrl = (deviceIndex) => `${API_BASE}/drainwatch/usbc-feed?device_index=${deviceIndex}`;
 const fetchUsbcTelemetry = () => fetch(`${API_BASE}/drainwatch/usbc-telemetry`).then(r => r.json());
 const stopUsbcStream = () => fetch(`${API_BASE}/drainwatch/usbc-stop`, { method: 'POST' });
@@ -298,7 +298,7 @@ export default function DrainWatchCamera({ station, onTelemetryUpdate }) {
       // This keeps the stream alive even if browser caches the first frame
       ipRefreshIntervalRef.current = setInterval(() => {
         if (ipImgRef.current && !streamOffline) {
-          const base = `/api/v1/drainwatch/video-feed?stream_url=${encodeURIComponent(ipUrl)}`;
+          const base = `${API_BASE}/drainwatch/video-feed?stream_url=${encodeURIComponent(ipUrl)}`;
           ipImgRef.current.src = `${base}&_t=${Date.now()}`;
         }
       }, 80);
@@ -816,7 +816,7 @@ export default function DrainWatchCamera({ station, onTelemetryUpdate }) {
                 <img
                   key={streamKey}
                   ref={ipImgRef}
-                  src={`/api/v1/drainwatch/video-feed?stream_url=${encodeURIComponent(ipUrl)}&_t=${streamKey}`}
+                  src={`${API_BASE}/drainwatch/video-feed?stream_url=${encodeURIComponent(ipUrl)}&_t=${streamKey}`}
                   alt="Live IP Feed"
                   style={{
                     width: '100%',

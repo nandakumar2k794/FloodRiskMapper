@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     app_port: int = Field(8000, alias="APP_PORT")
     app_debug: bool = Field(True, alias="APP_DEBUG")
     cors_origins: Any = Field(
-        default=["http://localhost:5173", "http://localhost:3000"],
+        default=["http://localhost:5173", "http://localhost:3000", "https://nandakumar2k794.github.io"],
         alias="CORS_ORIGINS",
     )
 

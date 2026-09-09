@@ -59,8 +59,7 @@ export function useWebSocket(onMessage) {
   const [connected, setConnected] = useState(false)
 
   useEffect(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-    const url = `${protocol}://${window.location.host}/ws/live`
+    const url = `ws://127.0.0.1:8000/ws/live`
 
     const connect = () => {
       const ws = new WebSocket(url)
