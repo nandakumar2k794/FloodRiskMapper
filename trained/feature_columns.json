@@ -1,0 +1,15 @@
+[
+    "rainfall",
+    "distance_to_road",
+    "distance_to_drainage",
+    "distance_to_river",
+    "drainage_density",
+    "land_use",
+    "soil",
+    "mean_elevation",
+    "min_elevation",
+    "max_elevation",
+    "elevation_range",
+    "elevation_std",
+    "slope"
+]
