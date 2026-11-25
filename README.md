@@ -105,15 +105,4 @@ python -m pytest tests/ -v
 
 ---
 
-## Phase 1 Status (Project Foundation)
 
-- [x] Clean directory layout established
-- [x] Centralized configuration and logging subsystem
-- [x] Clean placeholder modules with typed interfaces (no fake logic)
-- [x] Streamlit operational health page with GPU, Python, and package inspection
-- [x] Windows-compatible testing suite passing
-- [ ] Phase 2: GIS Ingestion & Elevation/HAND processing (Upcoming)
-- [ ] Phase 3: DrainWatch AI CCTV pipeline
-- [ ] Phase 4: Road flood risk model
-- [ ] Phase 5: Dynamic risk-aware routing
-- [ ] Phase 6: Full operational dashboard & alerts
